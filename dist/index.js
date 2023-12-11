@@ -25898,18 +25898,33 @@ function validateInput(name) {
 function run() {
   return __awaiter(this, void 0, void 0, function* () {
     try {
+      validateInput("id");
       validateInput("status");
       validateInput("consumer-key");
       validateInput("consumer-secret");
       validateInput("access-token");
       validateInput("access-token-secret");
-      const twitter = new twitter_api_v2_1.TwitterApi({
-        appKey: core.getInput("consumer-key"),
-        appSecret: core.getInput("consumer-secret"),
-        accessToken: core.getInput("access-token"),
-        accessSecret: core.getInput("access-token-secret")
-      });
-      yield twitter.v2.tweet(core.getInput("status"));
+      const id = core.getInput("id");
+      const existingId = core.getState(id);
+      if (!existingId) {
+        const twitter = new twitter_api_v2_1.TwitterApi({
+          appKey: core.getInput("consumer-key"),
+          appSecret: core.getInput("consumer-secret"),
+          accessToken: core.getInput("access-token"),
+          accessSecret: core.getInput("access-token-secret")
+        });
+        const replyToId = core.getInput("replyto");
+        if (replyToId) {
+          const replyStatus = core.getState(replyToId);
+          if (replyStatus) {
+            const tweet = yield twitter.v2.reply(core.getInput("status"), replyStatus);
+            core.saveState(id, tweet.data.id);
+          }
+        } else {
+          const tweet = yield twitter.v2.tweet(core.getInput("status"));
+          core.saveState(id, tweet.data.id);
+        }
+      }
     } catch (error) {
       if (error instanceof Error) {
         console.error(error);
