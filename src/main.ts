@@ -10,6 +10,8 @@ async function run(): Promise<void> {
     validateInput('status')
     validateInput('consumer-key')
     validateInput('consumer-secret')
+    validateInput('access-token')
+    validateInput('access-token-secret')
 
     const twitter = new TwitterApi({
       appKey: core.getInput('consumer-key'),
@@ -18,11 +20,10 @@ async function run(): Promise<void> {
       accessSecret: core.getInput('access-token-secret')
     })
 
-    const api = await twitter.appLogin()
-
-    await api.v2.tweet(core.getInput('status'))
+    await twitter.v2.tweet(core.getInput('status'))
   } catch (error) {
     if (error instanceof Error) {
+      console.error(error)
       core.setFailed(error.message)
     }
   }

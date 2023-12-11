@@ -25901,16 +25901,18 @@ function run() {
       validateInput("status");
       validateInput("consumer-key");
       validateInput("consumer-secret");
+      validateInput("access-token");
+      validateInput("access-token-secret");
       const twitter = new twitter_api_v2_1.TwitterApi({
         appKey: core.getInput("consumer-key"),
         appSecret: core.getInput("consumer-secret"),
         accessToken: core.getInput("access-token"),
         accessSecret: core.getInput("access-token-secret")
       });
-      const api = yield twitter.appLogin();
-      yield api.v2.tweet(core.getInput("status"));
+      yield twitter.v2.tweet(core.getInput("status"));
     } catch (error) {
       if (error instanceof Error) {
+        console.error(error);
         core.setFailed(error.message);
       }
     }
