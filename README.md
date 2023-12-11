@@ -1,6 +1,4 @@
-<a href="https://github.com/rg-wood/send-tweet-action/actions"><img alt="send-tweet-action status" src="https://github.com/rg-wood/send-tweet-action/workflows/CI/badge.svg?branch=master&event=push"></a>
-
-# Send a tweet from a GitHub Actions workflow
+# Send a tweet from a GitHub Actions workflow [![CI](https://github.com/rg-wood/send-tweet-action/actions/workflows/test.yml/badge.svg)](https://github.com/rg-wood/send-tweet-action/actions/workflows/test.yml)
 
 Use this action to send a tweet from a GitHub actions workflow.
 
