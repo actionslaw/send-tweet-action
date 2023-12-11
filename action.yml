@@ -21,7 +21,7 @@ inputs:
       Application access token secret, available in the "Keys and tokens"
       section of your application in the Twitter Developer site.
 runs:
-  using: 'node21'
+  using: 'node20'
   main: 'dist/index.js'
 branding:
   icon: edit
