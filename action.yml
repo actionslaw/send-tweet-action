@@ -1,6 +1,6 @@
-name: 'Send Tweet Action'
+name: 'Send V2 Tweet Action'
 description: 'Post a tweet to Twitter during a GitHub Actions workflow.'
-author: 'Edward Thomson'
+author: 'Ric Wood'
 inputs:
   status:
     description: The status ("tweet") to post to twitter.

@@ -1,5 +1,5 @@
 import * as core from '@actions/core'
-import Twitter from 'twitter'
+import {TwitterApi} from 'twitter-api-v2'
 
 function validateInput(name: string): void {
   if (!core.getInput(name)) throw new Error(`${name} is a required input`)
@@ -10,28 +10,21 @@ async function run(): Promise<void> {
     validateInput('status')
     validateInput('consumer-key')
     validateInput('consumer-secret')
-    validateInput('access-token')
-    validateInput('access-token-secret')
 
-    const twitter = new Twitter({
-      consumer_key: core.getInput('consumer-key'),
-      consumer_secret: core.getInput('consumer-secret'),
-      access_token_key: core.getInput('access-token'),
-      access_token_secret: core.getInput('access-token-secret')
+    const twitter = new TwitterApi({
+      appKey: core.getInput('consumer-key'),
+      appSecret: core.getInput('consumer-secret'),
+      accessToken: core.getInput('access-token'),
+      accessSecret: core.getInput('access-token-secret')
     })
 
-    twitter.post(
-      '/statuses/update',
-      {status: core.getInput('status')},
-      (error, data, response) => {
-        if (error) throw error
+    const api = await twitter.appLogin()
 
-        console.log(data)
-        console.log(response)
-      }
-    )
+    await api.v2.tweet(core.getInput('status'))
   } catch (error) {
-    core.setFailed(error.message)
+    if (error instanceof Error) {
+      core.setFailed(error.message)
+    }
   }
 }
 
