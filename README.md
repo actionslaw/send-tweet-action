@@ -41,7 +41,7 @@ jobs:
   tweet:
     runs-on: ubuntu-latest
     steps:
-      - uses: ethomson/send-tweet-action@v1
+      - uses: rg-wood/send-tweet-action@v1
         with:
           status: "Hi, this is a test!"
           consumer-key: ${{ secrets.TWITTER_CONSUMER_API_KEY }}
@@ -52,4 +52,3 @@ jobs:
 
 Now whenever you push something to your repository, GitHub Actions
 will tweet on your behalf.
-
