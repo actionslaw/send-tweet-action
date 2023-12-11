@@ -8,7 +8,7 @@
     "build": "tsc",
     "format": "prettier --write **/*.ts",
     "lint": "prettier --check **/*.ts",
-    "pack": "ncc build",
+    "pack": "esbuild lib/main.js --outfile=dist/index.js  --bundle --platform=node --target=node10.4",
     "test": "jest --passWithNoTests",
     "all": "npm run build && npm run format && npm run lint && npm run pack && npm test"
   },
@@ -30,7 +30,7 @@
   "devDependencies": {
     "@types/jest": "^29.5.11",
     "@types/node": "^20.10.4",
-    "@vercel/ncc": "^0.38.1",
+    "esbuild": "0.19.9",
     "prettier": "^3.1.1",
     "ts-jest": "^29.1.1",
     "typescript": "^5.3.3"
