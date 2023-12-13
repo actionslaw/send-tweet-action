@@ -18412,8 +18412,8 @@ var require_summary = __commonJS({
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.summary = exports2.markdownSummary = exports2.SUMMARY_DOCS_URL = exports2.SUMMARY_ENV_VAR = void 0;
     var os_1 = require("os");
-    var fs_1 = require("fs");
-    var { access, appendFile, writeFile } = fs_1.promises;
+    var fs_12 = require("fs");
+    var { access, appendFile, writeFile } = fs_12.promises;
     exports2.SUMMARY_ENV_VAR = "GITHUB_STEP_SUMMARY";
     exports2.SUMMARY_DOCS_URL = "https://docs.github.com/actions/using-workflows/workflow-commands-for-github-actions#adding-a-job-summary";
     var Summary = class {
@@ -18436,7 +18436,7 @@ var require_summary = __commonJS({
             throw new Error(`Unable to find environment variable for $${exports2.SUMMARY_ENV_VAR}. Check if your runtime environment supports job summaries.`);
           }
           try {
-            yield access(pathFromEnv, fs_1.constants.R_OK | fs_1.constants.W_OK);
+            yield access(pathFromEnv, fs_12.constants.R_OK | fs_12.constants.W_OK);
           } catch (_a) {
             throw new Error(`Unable to access summary file: '${pathFromEnv}'. Check if the file has correct read/write permissions.`);
           }
@@ -25868,9 +25868,16 @@ var require_Tweet = __commonJS({
         this.status = status;
         this.history = history;
       }
+      statusFor(key) {
+        const message = this.history.find(([target, _]) => target == key);
+        if (message)
+          return message[1];
+        else
+          ;
+      }
       send() {
         return __awaiter2(this, void 0, void 0, function* () {
-          if (!this.history.get(this.key)) {
+          if (!this.statusFor(this.key)) {
             const tweet = yield this.api.v2.tweet(this.status);
             return tweet.data.id;
           }
@@ -25879,8 +25886,8 @@ var require_Tweet = __commonJS({
       }
       replyTo(replyToKey) {
         return __awaiter2(this, void 0, void 0, function* () {
-          const replyToId = this.history.get(replyToKey);
-          if (!this.history.get(this.key) && replyToId) {
+          const replyToId = this.statusFor(replyToKey);
+          if (!this.statusFor(this.key) && replyToId) {
             const tweet = yield this.api.v2.reply(this.status, replyToId);
             return tweet.data.id;
           }
@@ -25956,6 +25963,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var core = __importStar(require_core());
 var twitter_api_v2_1 = require_cjs();
 var Tweet_1 = require_Tweet();
+var fs_1 = require("fs");
 function validateInput(name) {
   if (!core.getInput(name))
     throw new Error(`${name} is a required input`);
@@ -25975,6 +25983,7 @@ function run() {
       core.setSecret(core.getInput("access-token-secret"));
       const key = core.getInput("key");
       const status = core.getInput("status");
+      const historyFile = core.getInput("history");
       core.info(`\u{1F426} Sending tweet for ${key}`);
       const twitter = new twitter_api_v2_1.TwitterApi({
         appKey: core.getInput("consumer-key"),
@@ -25983,26 +25992,24 @@ function run() {
         accessSecret: core.getInput("access-token-secret")
       });
       const replyToKey = core.getInput("replyto");
-      const existingId = core.getState(key);
-      const replyId = core.getState(replyToKey);
-      const history = /* @__PURE__ */ new Map([
-        [key, existingId],
-        [replyToKey, replyId]
-      ]);
+      const data = (0, fs_1.readFileSync)(historyFile, "utf8");
+      const history = JSON.parse(data);
       const tweet = new Tweet_1.Tweet(twitter, key, status, history);
       if (replyToKey) {
-        core.info(`\u{1F426} replying to ${replyToKey}/${replyId}`);
+        core.info(`\u{1F426} replying to ${replyToKey}`);
         const id = yield tweet.replyTo(replyToKey);
         if (id) {
           core.info(`\u{1F426} sent status ${id}`);
-          core.saveState(key, id);
+          const updatedHistory = history.concat([[key, id]]);
+          (0, fs_1.writeFileSync)(historyFile, JSON.stringify(updatedHistory), "utf8");
         } else
           core.notice(`\u{1FAE4} Retweet ${key} orphaned or already sent - ignoring`);
       } else {
         const id = yield tweet.send();
         if (id) {
           core.info(`\u{1F426} sent status ${id}`);
-          core.saveState(key, id);
+          const updatedHistory = history.concat([[key, id]]);
+          (0, fs_1.writeFileSync)(historyFile, JSON.stringify(updatedHistory), "utf8");
         } else
           core.notice(`\u{1FAE4} Tweet ${key} already sent - ignoring`);
       }

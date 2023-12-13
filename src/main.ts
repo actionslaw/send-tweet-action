@@ -1,7 +1,8 @@
 import * as core from '@actions/core'
 import {Maybe} from './Maybe'
 import {TwitterApi} from 'twitter-api-v2'
-import {Key, StatusId, Tweet} from './Tweet'
+import {Key, Tweet, History} from './Tweet'
+import {readFileSync, writeFileSync} from 'fs'
 
 function validateInput(name: string): void {
   if (!core.getInput(name)) throw new Error(`${name} is a required input`)
@@ -23,6 +24,7 @@ async function run(): Promise<void> {
 
     const key: Key = core.getInput('key') as Key
     const status: string = core.getInput('status')
+    const historyFile: Maybe<string> = core.getInput('history')
 
     core.info(`🐦 Sending tweet for ${key}`)
 
@@ -34,29 +36,27 @@ async function run(): Promise<void> {
     })
 
     const replyToKey: Key = core.getInput('replyto') as Key
-    const existingId: Maybe<StatusId> = core.getState(key) as StatusId
-    const replyId: Maybe<StatusId> = core.getState(replyToKey) as StatusId
 
-    const history = new Map<Key, StatusId>([
-      [key, existingId],
-      [replyToKey, replyId]
-    ])
+    const data = readFileSync(historyFile, 'utf8')
+    const history: History = JSON.parse(data)
 
     const tweet = new Tweet(twitter, key, status, history)
 
     if (replyToKey) {
-      core.info(`🐦 replying to ${replyToKey}/${replyId}`)
+      core.info(`🐦 replying to ${replyToKey}`)
       const id = await tweet.replyTo(replyToKey)
       if (id) {
         core.info(`🐦 sent status ${id}`)
-        core.saveState(key, id)
+        const updatedHistory = history.concat([[key, id]])
+        writeFileSync(historyFile, JSON.stringify(updatedHistory), 'utf8')
       } else
         core.notice(`🫤 Retweet ${key} orphaned or already sent - ignoring`)
     } else {
       const id = await tweet.send()
       if (id) {
         core.info(`🐦 sent status ${id}`)
-        core.saveState(key, id)
+        const updatedHistory = history.concat([[key, id]])
+        writeFileSync(historyFile, JSON.stringify(updatedHistory), 'utf8')
       } else core.notice(`🫤 Tweet ${key} already sent - ignoring`)
     }
   } catch (error) {
