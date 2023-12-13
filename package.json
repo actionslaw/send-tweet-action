@@ -1,6 +1,6 @@
 {
   "name": "send-tweet-action",
-  "version": "0.5.0",
+  "version": "0.8.0",
   "private": true,
   "description": "Post a tweet during a GitHub Actions workflow",
   "main": "lib/main.js",
@@ -8,7 +8,7 @@
     "build": "tsc",
     "format": "prettier --write **/*.ts",
     "lint": "prettier --check **/*.ts",
-    "pack": "esbuild lib/main.js --outfile=dist/index.js  --bundle --platform=node --target=node10.4",
+    "pack": "esbuild lib/src/main.js --outfile=dist/index.js  --bundle --platform=node --target=node10.4",
     "test": "jest --passWithNoTests",
     "all": "npm run build && npm run format && npm run lint && npm run pack && npm test"
   },

@@ -25828,7 +25828,71 @@ var require_cjs = __commonJS({
   }
 });
 
-// lib/main.js
+// lib/src/Tweet.js
+var require_Tweet = __commonJS({
+  "lib/src/Tweet.js"(exports2) {
+    "use strict";
+    var __awaiter2 = exports2 && exports2.__awaiter || function(thisArg, _arguments, P, generator) {
+      function adopt(value) {
+        return value instanceof P ? value : new P(function(resolve) {
+          resolve(value);
+        });
+      }
+      return new (P || (P = Promise))(function(resolve, reject) {
+        function fulfilled(value) {
+          try {
+            step(generator.next(value));
+          } catch (e) {
+            reject(e);
+          }
+        }
+        function rejected(value) {
+          try {
+            step(generator["throw"](value));
+          } catch (e) {
+            reject(e);
+          }
+        }
+        function step(result) {
+          result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
+        }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+      });
+    };
+    Object.defineProperty(exports2, "__esModule", { value: true });
+    exports2.Tweet = void 0;
+    var Tweet = class {
+      constructor(api, key, status, history) {
+        this.api = api;
+        this.key = key;
+        this.status = status;
+        this.history = history;
+      }
+      send() {
+        return __awaiter2(this, void 0, void 0, function* () {
+          if (!this.history.get(this.key)) {
+            const tweet = yield this.api.v2.tweet(this.status);
+            return tweet.data.id;
+          }
+          return void 0;
+        });
+      }
+      replyTo(replyToKey) {
+        return __awaiter2(this, void 0, void 0, function* () {
+          const replyToId = this.history.get(replyToKey);
+          if (!this.history.get(this.key) && replyToId) {
+            const tweet = yield this.api.v2.reply(this.status, replyToId);
+            return tweet.data.id;
+          }
+          return void 0;
+        });
+      }
+    };
+    exports2.Tweet = Tweet;
+  }
+});
+
+// lib/src/main.js
 var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
   if (k2 === void 0)
     k2 = k;
@@ -25891,6 +25955,7 @@ var __awaiter = exports && exports.__awaiter || function(thisArg, _arguments, P,
 Object.defineProperty(exports, "__esModule", { value: true });
 var core = __importStar(require_core());
 var twitter_api_v2_1 = require_cjs();
+var Tweet_1 = require_Tweet();
 function validateInput(name) {
   if (!core.getInput(name))
     throw new Error(`${name} is a required input`);
@@ -25898,32 +25963,42 @@ function validateInput(name) {
 function run() {
   return __awaiter(this, void 0, void 0, function* () {
     try {
-      validateInput("id");
+      validateInput("key");
       validateInput("status");
       validateInput("consumer-key");
       validateInput("consumer-secret");
       validateInput("access-token");
       validateInput("access-token-secret");
-      const id = core.getInput("id");
-      const existingId = core.getState(id);
-      if (!existingId) {
-        const twitter = new twitter_api_v2_1.TwitterApi({
-          appKey: core.getInput("consumer-key"),
-          appSecret: core.getInput("consumer-secret"),
-          accessToken: core.getInput("access-token"),
-          accessSecret: core.getInput("access-token-secret")
-        });
-        const replyToId = core.getInput("replyto");
-        if (replyToId) {
-          const replyStatus = core.getState(replyToId);
-          if (replyStatus) {
-            const tweet = yield twitter.v2.reply(core.getInput("status"), replyStatus);
-            core.saveState(id, tweet.data.id);
-          }
-        } else {
-          const tweet = yield twitter.v2.tweet(core.getInput("status"));
-          core.saveState(id, tweet.data.id);
-        }
+      const key = core.getInput("key");
+      const status = core.getInput("status");
+      console.log(`\u{1F426} Sending tweet for ${key}`);
+      const twitter = new twitter_api_v2_1.TwitterApi({
+        appKey: core.getInput("consumer-key"),
+        appSecret: core.getInput("consumer-secret"),
+        accessToken: core.getInput("access-token"),
+        accessSecret: core.getInput("access-token-secret")
+      });
+      const replyToKey = core.getInput("replyto");
+      const existingId = core.getState(key);
+      const replyId = core.getState(replyToKey);
+      const history = /* @__PURE__ */ new Map([
+        [key, existingId],
+        [replyToKey, replyId]
+      ]);
+      const tweet = new Tweet_1.Tweet(twitter, key, status, history);
+      if (replyToKey) {
+        console.log(`\u{1F426} replying to ${replyId}`);
+        const id = yield tweet.replyTo(replyToKey);
+        if (id)
+          core.saveState(key, id);
+        else
+          console.warn(`\u{1FAE4} Retweet ${key} orphaned or already sent - ignoring`);
+      } else {
+        const id = yield tweet.send();
+        if (id)
+          core.saveState(key, id);
+        else
+          console.warn(`\u{1FAE4} Tweet ${key} already sent - ignoring`);
       }
     } catch (error) {
       if (error instanceof Error) {
