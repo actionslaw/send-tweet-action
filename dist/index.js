@@ -25971,7 +25971,7 @@ function run() {
       validateInput("access-token-secret");
       const key = core.getInput("key");
       const status = core.getInput("status");
-      console.log(`\u{1F426} Sending tweet for ${key}`);
+      core.info(`\u{1F426} Sending tweet for ${key}`);
       const twitter = new twitter_api_v2_1.TwitterApi({
         appKey: core.getInput("consumer-key"),
         appSecret: core.getInput("consumer-secret"),
@@ -25987,22 +25987,22 @@ function run() {
       ]);
       const tweet = new Tweet_1.Tweet(twitter, key, status, history);
       if (replyToKey) {
-        console.log(`\u{1F426} replying to ${replyId}`);
+        core.info(`\u{1F426} replying to ${replyId}`);
         const id = yield tweet.replyTo(replyToKey);
         if (id)
           core.saveState(key, id);
         else
-          console.warn(`\u{1FAE4} Retweet ${key} orphaned or already sent - ignoring`);
+          core.notice(`\u{1FAE4} Retweet ${key} orphaned or already sent - ignoring`);
       } else {
         const id = yield tweet.send();
         if (id)
           core.saveState(key, id);
         else
-          console.warn(`\u{1FAE4} Tweet ${key} already sent - ignoring`);
+          core.notice(`\u{1FAE4} Tweet ${key} already sent - ignoring`);
       }
     } catch (error) {
       if (error instanceof Error) {
-        console.error(error);
+        core.error(error);
         core.setFailed(error.message);
       }
     }

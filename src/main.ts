@@ -19,7 +19,7 @@ async function run(): Promise<void> {
     const key: Key = core.getInput('key') as Key
     const status: string = core.getInput('status')
 
-    console.log(`🐦 Sending tweet for ${key}`)
+    core.info(`🐦 Sending tweet for ${key}`)
 
     const twitter = new TwitterApi({
       appKey: core.getInput('consumer-key'),
@@ -40,18 +40,18 @@ async function run(): Promise<void> {
     const tweet = new Tweet(twitter, key, status, history)
 
     if (replyToKey) {
-      console.log(`🐦 replying to ${replyId}`)
+      core.info(`🐦 replying to ${replyId}`)
       const id = await tweet.replyTo(replyToKey)
       if (id) core.saveState(key, id)
-      else console.warn(`🫤 Retweet ${key} orphaned or already sent - ignoring`)
+      else core.notice(`🫤 Retweet ${key} orphaned or already sent - ignoring`)
     } else {
       const id = await tweet.send()
       if (id) core.saveState(key, id)
-      else console.warn(`🫤 Tweet ${key} already sent - ignoring`)
+      else core.notice(`🫤 Tweet ${key} already sent - ignoring`)
     }
   } catch (error) {
     if (error instanceof Error) {
-      console.error(error)
+      core.error(error)
       core.setFailed(error.message)
     }
   }

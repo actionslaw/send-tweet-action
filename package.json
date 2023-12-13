@@ -1,6 +1,6 @@
 {
   "name": "send-tweet-action",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "private": true,
   "description": "Post a tweet during a GitHub Actions workflow",
   "main": "lib/main.js",
