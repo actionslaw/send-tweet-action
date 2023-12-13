@@ -1,8 +1,9 @@
 import * as core from '@actions/core'
 import {Maybe} from './Maybe'
 import {TwitterApi} from 'twitter-api-v2'
-import {Key, Tweet, History} from './Tweet'
+import {Key, StatusId, Tweet, History} from './Tweet'
 import {readFileSync, writeFileSync} from 'fs'
+import {ensureFileSync} from 'fs-extra'
 
 function validateInput(name: string): void {
   if (!core.getInput(name)) throw new Error(`${name} is a required input`)
@@ -39,22 +40,24 @@ async function run(): Promise<void> {
 
     const tweet = new Tweet(twitter, key, status, history)
 
+    function complete(id: StatusId) {
+      core.info(`🐦 sent status ${id}`)
+      if (historyFile) {
+        const updatedHistory = history.concat([[key, id]])
+        ensureFileSync(historyFile)
+        writeFileSync(historyFile, JSON.stringify(updatedHistory), 'utf8')
+      }
+    }
+
     if (replyToKey) {
       core.info(`🐦 replying to ${replyToKey}`)
       const id = await tweet.replyTo(replyToKey)
-      if (id) {
-        core.info(`🐦 sent status ${id}`)
-        const updatedHistory = history.concat([[key, id]])
-        writeFileSync(historyFile, JSON.stringify(updatedHistory), 'utf8')
-      } else
-        core.notice(`🫤 Retweet ${key} orphaned or already sent - ignoring`)
+      if (id) complete(id)
+      else core.notice(`🫤 Retweet ${key} orphaned or already sent - ignoring`)
     } else {
       const id = await tweet.send()
-      if (id) {
-        core.info(`🐦 sent status ${id}`)
-        const updatedHistory = history.concat([[key, id]])
-        writeFileSync(historyFile, JSON.stringify(updatedHistory), 'utf8')
-      } else core.notice(`🫤 Tweet ${key} already sent - ignoring`)
+      if (id) complete(id)
+      else core.notice(`🫤 Tweet ${key} already sent - ignoring`)
     }
   } catch (error) {
     if (error instanceof Error) {
