@@ -25987,17 +25987,19 @@ function run() {
       ]);
       const tweet = new Tweet_1.Tweet(twitter, key, status, history);
       if (replyToKey) {
-        core.info(`\u{1F426} replying to ${replyId}`);
+        core.info(`\u{1F426} replying to ${replyToKey}/${replyId}`);
         const id = yield tweet.replyTo(replyToKey);
-        if (id)
+        if (id) {
+          core.info(`\u{1F426} sent ${id}})`);
           core.saveState(key, id);
-        else
+        } else
           core.notice(`\u{1FAE4} Retweet ${key} orphaned or already sent - ignoring`);
       } else {
         const id = yield tweet.send();
-        if (id)
+        if (id) {
+          core.info(`\u{1F426} sent ${id}})`);
           core.saveState(key, id);
-        else
+        } else
           core.notice(`\u{1FAE4} Tweet ${key} already sent - ignoring`);
       }
     } catch (error) {

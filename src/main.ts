@@ -40,14 +40,19 @@ async function run(): Promise<void> {
     const tweet = new Tweet(twitter, key, status, history)
 
     if (replyToKey) {
-      core.info(`🐦 replying to ${replyId}`)
+      core.info(`🐦 replying to ${replyToKey}/${replyId}`)
       const id = await tweet.replyTo(replyToKey)
-      if (id) core.saveState(key, id)
-      else core.notice(`🫤 Retweet ${key} orphaned or already sent - ignoring`)
+      if (id) {
+        core.info(`🐦 sent ${id}})`)
+        core.saveState(key, id)
+      } else
+        core.notice(`🫤 Retweet ${key} orphaned or already sent - ignoring`)
     } else {
       const id = await tweet.send()
-      if (id) core.saveState(key, id)
-      else core.notice(`🫤 Tweet ${key} already sent - ignoring`)
+      if (id) {
+        core.info(`🐦 sent ${id}})`)
+        core.saveState(key, id)
+      } else core.notice(`🫤 Tweet ${key} already sent - ignoring`)
     }
   } catch (error) {
     if (error instanceof Error) {
