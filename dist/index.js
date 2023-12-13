@@ -25969,6 +25969,10 @@ function run() {
       validateInput("consumer-secret");
       validateInput("access-token");
       validateInput("access-token-secret");
+      core.setSecret(core.getInput("consumer-key"));
+      core.setSecret(core.getInput("consumer-secret"));
+      core.setSecret(core.getInput("access-token"));
+      core.setSecret(core.getInput("access-token-secret"));
       const key = core.getInput("key");
       const status = core.getInput("status");
       core.info(`\u{1F426} Sending tweet for ${key}`);

@@ -16,6 +16,11 @@ async function run(): Promise<void> {
     validateInput('access-token')
     validateInput('access-token-secret')
 
+    core.setSecret(core.getInput('consumer-key'))
+    core.setSecret(core.getInput('consumer-secret'))
+    core.setSecret(core.getInput('access-token'))
+    core.setSecret(core.getInput('access-token-secret'))
+
     const key: Key = core.getInput('key') as Key
     const status: string = core.getInput('status')
 
