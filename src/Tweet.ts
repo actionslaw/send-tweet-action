@@ -1,11 +1,21 @@
 import {TwitterApi} from 'twitter-api-v2'
 import {Maybe} from './Maybe'
+import {existsSync, readFileSync} from 'fs'
 
 export type Key = string & {readonly '': unique symbol}
 export type StatusId = string & {readonly '': unique symbol}
-export type History = [Key, StatusId][] & {readonly '': unique symbol}
+export type History = [Key, StatusId][]
 
 export class Tweet {
+  static loadHistory(path: string): History {
+    if (existsSync(path)) {
+      const data = readFileSync(path, 'utf8')
+      const history: History = JSON.parse(data)
+      return history
+    }
+    return [] as History
+  }
+
   private readonly api: TwitterApi
   private readonly key: Key
   private readonly status: string

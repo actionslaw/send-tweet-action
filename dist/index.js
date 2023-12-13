@@ -25861,7 +25861,16 @@ var require_Tweet = __commonJS({
     };
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.Tweet = void 0;
+    var fs_12 = require("fs");
     var Tweet = class {
+      static loadHistory(path) {
+        if ((0, fs_12.existsSync)(path)) {
+          const data = (0, fs_12.readFileSync)(path, "utf8");
+          const history = JSON.parse(data);
+          return history;
+        }
+        return [];
+      }
       constructor(api, key, status, history) {
         this.api = api;
         this.key = key;
@@ -25984,6 +25993,8 @@ function run() {
       const key = core.getInput("key");
       const status = core.getInput("status");
       const historyFile = core.getInput("history");
+      const replyToKey = core.getInput("replyto");
+      const history = Tweet_1.Tweet.loadHistory(historyFile);
       core.info(`\u{1F426} Sending tweet for ${key}`);
       const twitter = new twitter_api_v2_1.TwitterApi({
         appKey: core.getInput("consumer-key"),
@@ -25991,9 +26002,6 @@ function run() {
         accessToken: core.getInput("access-token"),
         accessSecret: core.getInput("access-token-secret")
       });
-      const replyToKey = core.getInput("replyto");
-      const data = (0, fs_1.readFileSync)(historyFile, "utf8");
-      const history = JSON.parse(data);
       const tweet = new Tweet_1.Tweet(twitter, key, status, history);
       if (replyToKey) {
         core.info(`\u{1F426} replying to ${replyToKey}`);

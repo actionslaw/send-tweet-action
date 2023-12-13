@@ -25,6 +25,8 @@ async function run(): Promise<void> {
     const key: Key = core.getInput('key') as Key
     const status: string = core.getInput('status')
     const historyFile: Maybe<string> = core.getInput('history')
+    const replyToKey: Key = core.getInput('replyto') as Key
+    const history: History = Tweet.loadHistory(historyFile)
 
     core.info(`🐦 Sending tweet for ${key}`)
 
@@ -34,11 +36,6 @@ async function run(): Promise<void> {
       accessToken: core.getInput('access-token'),
       accessSecret: core.getInput('access-token-secret')
     })
-
-    const replyToKey: Key = core.getInput('replyto') as Key
-
-    const data = readFileSync(historyFile, 'utf8')
-    const history: History = JSON.parse(data)
 
     const tweet = new Tweet(twitter, key, status, history)
 
