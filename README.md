@@ -1,6 +1,7 @@
 # Send a tweet from a GitHub Actions workflow [![CI](https://github.com/rg-wood/send-tweet-action/actions/workflows/test.yml/badge.svg)](https://github.com/rg-wood/send-tweet-action/actions/workflows/test.yml)
 
-Use this action to send a tweet from a GitHub actions workflow.
+Use this action to send or reply to a tweet from a GitHub actions
+workflow.
 
 ## Twitter Application Setup
 
