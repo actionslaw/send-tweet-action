@@ -30,7 +30,7 @@ async function run(): Promise<void> {
     const history: History = Tweet.loadHistory(historyFile)
 
     core.info(`🐦 Sending tweet for ${key}`)
-    core.debug(`🐦 Loading tweet history [${history}]`)
+    core.debug(`🐦 Loading tweet history [${history}] from ${historyFile}`)
 
     const twitter = new TwitterApi({
       appKey: core.getInput('consumer-key'),
@@ -45,6 +45,7 @@ async function run(): Promise<void> {
       core.info(`🐦 sent tweet [${id}]`)
       if (historyFile) {
         const updatedHistory = history.concat([[key, id]])
+        core.debug(`🐦 Writing tweet history [${history}] to ${historyFile}`)
         ensureFileSync(historyFile)
         writeFileSync(historyFile, JSON.stringify(updatedHistory), 'utf8')
       }

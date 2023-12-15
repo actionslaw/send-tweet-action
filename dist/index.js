@@ -28184,6 +28184,7 @@ function run() {
         core.info(`\u{1F426} sent tweet [${id}]`);
         if (historyFile) {
           const updatedHistory = history.concat([[key, id]]);
+          core.debug(`\u{1F426} Writing tweet history [${history}] to ${historyFile}`);
           (0, fs_extra_1.ensureFileSync)(historyFile);
           (0, fs_1.writeFileSync)(historyFile, JSON.stringify(updatedHistory), "utf8");
         }
@@ -28204,7 +28205,7 @@ function run() {
       const replyToKey = core.getInput("replyto");
       const history = Tweet_1.Tweet.loadHistory(historyFile);
       core.info(`\u{1F426} Sending tweet for ${key}`);
-      core.debug(`\u{1F426} Loading tweet history [${history}]`);
+      core.debug(`\u{1F426} Loading tweet history [${history}] from ${historyFile}`);
       const twitter = new twitter_api_v2_1.TwitterApi({
         appKey: core.getInput("consumer-key"),
         appSecret: core.getInput("consumer-secret"),
