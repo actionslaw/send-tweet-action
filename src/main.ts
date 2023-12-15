@@ -1,9 +1,9 @@
 import * as core from '@actions/core'
-import {Maybe} from './Maybe'
-import {TwitterApi} from 'twitter-api-v2'
-import {Key, StatusId, Tweet, History} from './Tweet'
-import {readFileSync, writeFileSync} from 'fs'
-import {ensureFileSync} from 'fs-extra'
+import { Maybe } from './Maybe'
+import { TwitterApi } from 'twitter-api-v2'
+import { Key, StatusId, Tweet, History } from './Tweet'
+import { readFileSync, writeFileSync } from 'fs'
+import { ensureFileSync } from 'fs-extra'
 
 function validateInput(name: string): void {
   if (!core.getInput(name)) throw new Error(`${name} is a required input`)
