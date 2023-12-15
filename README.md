@@ -51,3 +51,8 @@ jobs:
 
 Now whenever you push something to your repository, GitHub Actions
 will tweet on your behalf.
+
+### Replies
+
+You can optionally set a tweet to reply to by setting the `replyTo`
+configuration.
