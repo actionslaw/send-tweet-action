@@ -24,7 +24,7 @@ secrets.
 
 ## Workflow Usage
 
-Configure your workflow to use `ethomson/send-tweet-action@v1`,
+Configure your workflow to use `rg-wood/send-tweet-action@v1`,
 and provide the tweet you want to send as the `status` input.
 
 Provide the authentication keys and tokens for your Twitter app
