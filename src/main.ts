@@ -1,9 +1,7 @@
 import * as core from '@actions/core'
 import { Maybe } from './Maybe'
 import { TwitterApi } from 'twitter-api-v2'
-import { Key, StatusId, Tweet, History } from './Tweet'
-import { readFileSync, writeFileSync } from 'fs'
-import { ensureFileSync } from 'fs-extra'
+import { Key, StatusId, Tweet } from './Tweet'
 
 function validateInput(name: string): void {
   if (!core.getInput(name)) throw new Error(`${name} is a required input`)
@@ -25,12 +23,9 @@ async function run(): Promise<void> {
 
     const key: Key = core.getInput('key') as Key
     const status: string = core.getInput('status')
-    const historyFile: Maybe<string> = core.getInput('history')
-    const replyToKey: Key = core.getInput('replyto') as Key
-    const history: History = Tweet.loadHistory(historyFile)
+    const replyTo: Maybe<StatusId> = core.getInput('replyto') as Maybe<StatusId>
 
     core.info(`🐦 Sending tweet for ${key}`)
-    core.debug(`🐦 Loading tweet history [${history}] from ${historyFile}`)
 
     const twitter = new TwitterApi({
       appKey: core.getInput('consumer-key'),
@@ -39,27 +34,17 @@ async function run(): Promise<void> {
       accessSecret: core.getInput('access-token-secret')
     })
 
-    const tweet = new Tweet(twitter, key, status, history)
+    const tweet = new Tweet(twitter, key, status)
 
-    function complete(id: StatusId) {
-      core.info(`🐦 sent tweet [${id}]`)
-      if (historyFile) {
-        const updatedHistory = history.concat([[key, id]])
-        core.debug(`🐦 Writing tweet history [${history}] to ${historyFile}`)
-        ensureFileSync(historyFile)
-        writeFileSync(historyFile, JSON.stringify(updatedHistory), 'utf8')
-      }
-    }
-
-    if (replyToKey) {
-      core.info(`🐦 replying to ${replyToKey}`)
-      const id = await tweet.replyTo(replyToKey)
-      if (id) complete(id)
-      else core.notice(`🫤 Retweet ${key} orphaned or already sent - ignoring`)
+    if (replyTo) {
+      core.info(`🐦 replying to ${replyTo}`)
+      const id = await tweet.replyTo(replyTo)
+      core.info(`🐦 sent reply tweet [${id}]`)
+      core.setOutput("status", id)
     } else {
       const id = await tweet.send()
-      if (id) complete(id)
-      else core.notice(`🫤 Tweet ${key} already sent - ignoring`)
+      core.info(`🐦 sent tweet [${id}]`)
+      core.setOutput("status", id)
     }
   } catch (error) {
     if (error instanceof Error) {

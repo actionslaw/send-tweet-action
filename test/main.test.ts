@@ -1,6 +1,6 @@
 import * as core from '@actions/core'
 import {TwitterApi} from 'twitter-api-v2'
-import {Key, StatusId, Tweet, History} from '../src/Tweet'
+import {Key, StatusId, Tweet} from '../src/Tweet'
 import {Maybe} from '../src/Maybe'
 
 function validateInput(name: string): void {
@@ -27,13 +27,11 @@ async function test(): Promise<void> {
 
   const replyId: Maybe<StatusId> = core.getInput('replyId') as StatusId
 
-  const history = [['reply' as Key, replyId]] as History
-
-  const tweet = new Tweet(twitter, 'test' as Key, status, history)
+  const tweet = new Tweet(twitter, 'test' as Key, status)
 
   if (replyId) {
     console.log(`🐦 replying to ${replyId}`)
-    const id = await tweet.replyTo('reply' as Key)
+    const id = await tweet.replyTo(replyId)
     console.log(`🐦 Retweet sent: ${id}`)
   } else {
     const id = await tweet.send()
