@@ -25862,9 +25862,8 @@ var require_Tweet = __commonJS({
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.Tweet = void 0;
     var Tweet = class {
-      constructor(api, key, status) {
+      constructor(api, status) {
         this.api = api;
-        this.key = key;
         this.status = status;
       }
       send() {
@@ -25955,7 +25954,6 @@ function validateInput(name) {
 function run() {
   return __awaiter(this, void 0, void 0, function* () {
     try {
-      validateInput("key");
       validateInput("status");
       validateInput("consumer-key");
       validateInput("consumer-secret");
@@ -25965,17 +25963,16 @@ function run() {
       core.setSecret(core.getInput("consumer-secret"));
       core.setSecret(core.getInput("access-token"));
       core.setSecret(core.getInput("access-token-secret"));
-      const key = core.getInput("key");
       const status = core.getInput("status");
       const replyTo = core.getInput("replyto");
-      core.info(`\u{1F426} Sending tweet for ${key}`);
+      core.info(`\u{1F426} Sending tweet [${status}]`);
       const twitter = new twitter_api_v2_1.TwitterApi({
         appKey: core.getInput("consumer-key"),
         appSecret: core.getInput("consumer-secret"),
         accessToken: core.getInput("access-token"),
         accessSecret: core.getInput("access-token-secret")
       });
-      const tweet = new Tweet_1.Tweet(twitter, key, status);
+      const tweet = new Tweet_1.Tweet(twitter, status);
       if (replyTo) {
         core.info(`\u{1F426} replying to ${replyTo}`);
         const id = yield tweet.replyTo(replyTo);

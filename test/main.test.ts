@@ -1,6 +1,6 @@
 import * as core from '@actions/core'
 import {TwitterApi} from 'twitter-api-v2'
-import {Key, StatusId, Tweet} from '../src/Tweet'
+import {StatusId, Tweet} from '../src/Tweet'
 import {Maybe} from '../src/Maybe'
 
 function validateInput(name: string): void {
@@ -27,7 +27,7 @@ async function test(): Promise<void> {
 
   const replyId: Maybe<StatusId> = core.getInput('replyId') as StatusId
 
-  const tweet = new Tweet(twitter, 'test' as Key, status)
+  const tweet = new Tweet(twitter, status)
 
   if (replyId) {
     console.log(`🐦 replying to ${replyId}`)

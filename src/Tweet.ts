@@ -1,17 +1,13 @@
 import {TwitterApi} from 'twitter-api-v2'
 
-export type Key = string & {readonly '': unique symbol}
 export type StatusId = string & {readonly '': unique symbol}
-export type History = [Key, StatusId][]
 
 export class Tweet {
   private readonly api: TwitterApi
-  private readonly key: Key
   private readonly status: string
 
-  constructor(api: TwitterApi, key: Key, status: string) {
+  constructor(api: TwitterApi, status: string) {
     this.api = api
-    this.key = key
     this.status = status
   }
 

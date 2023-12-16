@@ -1,7 +1,7 @@
 import * as core from '@actions/core'
-import { Maybe } from './Maybe'
-import { TwitterApi } from 'twitter-api-v2'
-import { Key, StatusId, Tweet } from './Tweet'
+import {Maybe} from './Maybe'
+import {TwitterApi} from 'twitter-api-v2'
+import {StatusId, Tweet} from './Tweet'
 
 function validateInput(name: string): void {
   if (!core.getInput(name)) throw new Error(`${name} is a required input`)
@@ -9,7 +9,6 @@ function validateInput(name: string): void {
 
 async function run(): Promise<void> {
   try {
-    validateInput('key')
     validateInput('status')
     validateInput('consumer-key')
     validateInput('consumer-secret')
@@ -21,11 +20,10 @@ async function run(): Promise<void> {
     core.setSecret(core.getInput('access-token'))
     core.setSecret(core.getInput('access-token-secret'))
 
-    const key: Key = core.getInput('key') as Key
     const status: string = core.getInput('status')
     const replyTo: Maybe<StatusId> = core.getInput('replyto') as Maybe<StatusId>
 
-    core.info(`🐦 Sending tweet for ${key}`)
+    core.info(`🐦 Sending tweet [${status}]`)
 
     const twitter = new TwitterApi({
       appKey: core.getInput('consumer-key'),
@@ -34,17 +32,17 @@ async function run(): Promise<void> {
       accessSecret: core.getInput('access-token-secret')
     })
 
-    const tweet = new Tweet(twitter, key, status)
+    const tweet = new Tweet(twitter, status)
 
     if (replyTo) {
       core.info(`🐦 replying to ${replyTo}`)
       const id = await tweet.replyTo(replyTo)
       core.info(`🐦 sent reply tweet [${id}]`)
-      core.setOutput("status", id)
+      core.setOutput('status', id)
     } else {
       const id = await tweet.send()
       core.info(`🐦 sent tweet [${id}]`)
-      core.setOutput("status", id)
+      core.setOutput('status', id)
     }
   } catch (error) {
     if (error instanceof Error) {
