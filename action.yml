@@ -4,6 +4,8 @@ author: 'Ric Wood'
 inputs:
   status:
     description: The status ("tweet") to post to twitter.
+  replyto:
+    description: Optional status ID of tweet to post a reply to.
   consumer-key:
     description: >
       Consumer API key, available in the "Keys and tokens"
