@@ -1,6 +1,6 @@
-name: 'Send and Reply Tweet Action'
-description: 'Post or reply to a tweet to Twitter during a GitHub Actions workflow.'
-author: 'Ric Wood'
+name: Send and Reply Tweet Action
+description: Post or reply to a tweet to Twitter during a GitHub Actions workflow.
+author: Ric Wood
 inputs:
   status:
     description: The status ("tweet") to post to twitter.
@@ -23,8 +23,8 @@ inputs:
       Application access token secret, available in the "Keys and tokens"
       section of your application in the Twitter Developer site.
 runs:
-  using: 'node20'
-  main: 'dist/index.js'
+  using: node20
+  main: dist/index.js
 branding:
   icon: edit
   color: blue
