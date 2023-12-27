@@ -546,7 +546,7 @@ var require_file_command = __commonJS({
     };
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.prepareKeyValueMessage = exports2.issueFileCommand = void 0;
-    var fs = __importStar2(require("fs"));
+    var fs2 = __importStar2(require("fs"));
     var os = __importStar2(require("os"));
     var uuid_1 = (init_esm_node(), __toCommonJS(esm_node_exports));
     var utils_1 = require_utils();
@@ -555,10 +555,10 @@ var require_file_command = __commonJS({
       if (!filePath) {
         throw new Error(`Unable to find environment variable for file command ${command}`);
       }
-      if (!fs.existsSync(filePath)) {
+      if (!fs2.existsSync(filePath)) {
         throw new Error(`Missing file at path: ${filePath}`);
       }
-      fs.appendFileSync(filePath, `${utils_1.toCommandValue(message)}${os.EOL}`, {
+      fs2.appendFileSync(filePath, `${utils_1.toCommandValue(message)}${os.EOL}`, {
         encoding: "utf8"
       });
     }
@@ -22781,14 +22781,14 @@ var require_media_helpers_v1 = __commonJS({
     };
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.readNextPartOf = exports2.sleepSecs = exports2.getMediaCategoryByMime = exports2.getMimeType = exports2.getFileSizeFromFileHandle = exports2.getFileHandle = exports2.readFileIntoBuffer = void 0;
-    var fs = __importStar2(require("fs"));
+    var fs2 = __importStar2(require("fs"));
     var helpers_1 = require_helpers();
     var types_1 = require_types();
     async function readFileIntoBuffer(file) {
       const handle = await getFileHandle(file);
       if (typeof handle === "number") {
         return new Promise((resolve, reject) => {
-          fs.readFile(handle, (err, data) => {
+          fs2.readFile(handle, (err, data) => {
             if (err) {
               return reject(err);
             }
@@ -22804,7 +22804,7 @@ var require_media_helpers_v1 = __commonJS({
     exports2.readFileIntoBuffer = readFileIntoBuffer;
     function getFileHandle(file) {
       if (typeof file === "string") {
-        return fs.promises.open(file, "r");
+        return fs2.promises.open(file, "r");
       } else if (typeof file === "number") {
         return file;
       } else if (typeof file === "object" && !(file instanceof Buffer)) {
@@ -22819,7 +22819,7 @@ var require_media_helpers_v1 = __commonJS({
     async function getFileSizeFromFileHandle(fileHandle) {
       if (typeof fileHandle === "number") {
         const stats = await new Promise((resolve, reject) => {
-          fs.fstat(fileHandle, (err, stats2) => {
+          fs2.fstat(fileHandle, (err, stats2) => {
             if (err)
               reject(err);
             resolve(stats2);
@@ -22916,7 +22916,7 @@ var require_media_helpers_v1 = __commonJS({
       let bytesRead;
       if (typeof file === "number") {
         bytesRead = await new Promise((resolve, reject) => {
-          fs.read(file, buffer, 0, chunkLength, bufferOffset, (err, nread) => {
+          fs2.read(file, buffer, 0, chunkLength, bufferOffset, (err, nread) => {
             if (err)
               reject(err);
             resolve(nread);
@@ -22972,7 +22972,7 @@ var require_client_v1_write = __commonJS({
       return mod && mod.__esModule ? mod : { "default": mod };
     };
     Object.defineProperty(exports2, "__esModule", { value: true });
-    var fs = __importStar2(require("fs"));
+    var fs2 = __importStar2(require("fs"));
     var globals_1 = require_globals();
     var helpers_1 = require_helpers();
     var types_1 = require_types();
@@ -23256,7 +23256,7 @@ var require_client_v1_write = __commonJS({
           return fullMediaData.media_id_string;
         } finally {
           if (typeof file === "number") {
-            fs.close(file, () => {
+            fs2.close(file, () => {
             });
           } else if (typeof fileHandle === "object" && !(fileHandle instanceof Buffer)) {
             fileHandle.close();
@@ -23304,7 +23304,7 @@ var require_client_v1_write = __commonJS({
           };
         } catch (e) {
           if (typeof file === "number") {
-            fs.close(file, () => {
+            fs2.close(file, () => {
             });
           } else if (typeof fileHandle === "object" && !(fileHandle instanceof Buffer)) {
             fileHandle.close();
@@ -25866,15 +25866,28 @@ var require_Tweet = __commonJS({
         this.api = api;
         this.status = status;
       }
-      send() {
+      upload(media) {
         return __awaiter2(this, void 0, void 0, function* () {
-          const tweet = yield this.api.v2.tweet(this.status);
+          return yield this.api.v1.uploadMedia(media);
+        });
+      }
+      send(media) {
+        return __awaiter2(this, void 0, void 0, function* () {
+          const tweet = yield this.api.v2.tweet(this.status, {
+            media: {
+              media_ids: media
+            }
+          });
           return tweet.data.id;
         });
       }
-      replyTo(replyToId) {
+      replyTo(replyToId, media) {
         return __awaiter2(this, void 0, void 0, function* () {
-          const tweet = yield this.api.v2.reply(this.status, replyToId);
+          const tweet = yield this.api.v2.reply(this.status, replyToId, {
+            media: {
+              media_ids: media
+            }
+          });
           return tweet.data.id;
         });
       }
@@ -25947,6 +25960,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var core = __importStar(require_core());
 var twitter_api_v2_1 = require_cjs();
 var Tweet_1 = require_Tweet();
+var fs = __importStar(require("fs"));
 function validateInput(name) {
   if (!core.getInput(name))
     throw new Error(`${name} is a required input`);
@@ -25965,6 +25979,7 @@ function run() {
       core.setSecret(core.getInput("access-token-secret"));
       const status = core.getInput("status");
       const replyTo = core.getInput("replyto");
+      const media = core.getInput("media");
       core.info(`\u{1F426} Sending tweet [${status}]`);
       const twitter = new twitter_api_v2_1.TwitterApi({
         appKey: core.getInput("consumer-key"),
@@ -25973,13 +25988,25 @@ function run() {
         accessSecret: core.getInput("access-token-secret")
       });
       const tweet = new Tweet_1.Tweet(twitter, status);
+      const uploadMedia = (media2) => __awaiter(this, void 0, void 0, function* () {
+        const files = yield fs.promises.readdir(media2);
+        return yield Promise.all(files.map((file) => {
+          const path = `${media2}/${file}`;
+          core.debug(`\u{1F426} uploading media ${path}`);
+          return tweet.upload(path);
+        }));
+      });
+      const uploads = media ? yield uploadMedia(media) : [];
+      if (uploads) {
+        core.info(`\u{1F426} sending tweet with media ${uploads}`);
+      }
       if (replyTo) {
         core.info(`\u{1F426} replying to ${replyTo}`);
-        const id = yield tweet.replyTo(replyTo);
+        const id = yield tweet.replyTo(replyTo, uploads);
         core.info(`\u{1F426} sent reply tweet [${id}]`);
         core.setOutput("status", id);
       } else {
-        const id = yield tweet.send();
+        const id = yield tweet.send(uploads);
         core.info(`\u{1F426} sent tweet [${id}]`);
         core.setOutput("status", id);
       }

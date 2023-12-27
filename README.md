@@ -56,3 +56,8 @@ will tweet on your behalf.
 
 You can optionally set a tweet to reply to by setting the `replyTo`
 configuration.
+
+### Media
+
+You can optionally upload a tweet to reply to by setting the path to
+your media files in the `media` input.
