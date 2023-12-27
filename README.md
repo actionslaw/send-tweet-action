@@ -55,7 +55,7 @@ will tweet on your behalf.
 ### Replies
 
 You can optionally set a tweet to reply to by setting the `replyTo`
-configuration.
+input to the status of ID of the tweet you'd like to reply to.
 
 ### Media
 
