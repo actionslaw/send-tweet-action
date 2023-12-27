@@ -36,17 +36,19 @@ async function run(): Promise<void> {
 
     const tweet = new Tweet(twitter, status)
 
-    const uploadMedia: (media: string) => Promise<MediaId[]> = async (
+    const uploadMedia: (
       media: string
-    ) => {
-      const files = await fs.promises.readdir(media)
-      return await Promise.all(
-        files.map(file => {
-          const path = `${media}/${file}`
-          core.debug(`🐦 uploading media ${path}`)
-          return tweet.upload(path)
-        })
-      )
+    ) => Promise<MediaId[] | undefined> = async (media: string) => {
+      if (fs.existsSync(media)) {
+        const files = await fs.promises.readdir(media)
+        return await Promise.all(
+          files.map(file => {
+            const path = `${media}/${file}`
+            core.debug(`🐦 uploading media ${path}`)
+            return tweet.upload(path)
+          })
+        )
+      }
     }
 
     const uploads = media ? await uploadMedia(media) : []

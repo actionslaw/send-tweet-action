@@ -25989,12 +25989,14 @@ function run() {
       });
       const tweet = new Tweet_1.Tweet(twitter, status);
       const uploadMedia = (media2) => __awaiter(this, void 0, void 0, function* () {
-        const files = yield fs.promises.readdir(media2);
-        return yield Promise.all(files.map((file) => {
-          const path = `${media2}/${file}`;
-          core.debug(`\u{1F426} uploading media ${path}`);
-          return tweet.upload(path);
-        }));
+        if (fs.existsSync(media2)) {
+          const files = yield fs.promises.readdir(media2);
+          return yield Promise.all(files.map((file) => {
+            const path = `${media2}/${file}`;
+            core.debug(`\u{1F426} uploading media ${path}`);
+            return tweet.upload(path);
+          }));
+        }
       });
       const uploads = media ? yield uploadMedia(media) : [];
       if (uploads) {
