@@ -7,7 +7,7 @@ inputs:
   replyto:
     description: Optional status ID of tweet to post a reply to.
   media:
-    description: Optional cache key for medo.
+    description: Optional file path for media to tweet with.
   consumer-key:
     description: >
       Consumer API key, available in the "Keys and tokens"
