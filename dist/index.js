@@ -25997,6 +25997,7 @@ function run() {
             return tweet.upload(path);
           }));
         }
+        return [];
       });
       const uploads = media ? yield uploadMedia(media) : [];
       if (uploads) {

@@ -36,9 +36,9 @@ async function run(): Promise<void> {
 
     const tweet = new Tweet(twitter, status)
 
-    const uploadMedia: (
+    const uploadMedia: (media: string) => Promise<MediaId[]> = async (
       media: string
-    ) => Promise<MediaId[] | undefined> = async (media: string) => {
+    ) => {
       if (fs.existsSync(media)) {
         const files = await fs.promises.readdir(media)
         return await Promise.all(
@@ -49,6 +49,7 @@ async function run(): Promise<void> {
           })
         )
       }
+      return []
     }
 
     const uploads = media ? await uploadMedia(media) : []
