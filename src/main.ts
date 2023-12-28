@@ -54,8 +54,8 @@ async function run(): Promise<void> {
 
     const uploads = media && media !== '' ? await uploadMedia(media) : undefined
 
-    if (uploads) {
-      core.info(`🐦 sending tweet with media ${uploads}`)
+    if (uploads && uploads.length > 0) {
+      core.info(`🐦 sending tweet with media [${uploads}] from [${media}]`)
     }
 
     if (replyTo) {

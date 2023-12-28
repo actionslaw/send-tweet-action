@@ -25866,13 +25866,6 @@ var require_Tweet = __commonJS({
         this.api = api;
         this.status = status;
       }
-      makeOptions(media) {
-        return {
-          media: {
-            media_ids: media
-          }
-        };
-      }
       upload(media) {
         return __awaiter2(this, void 0, void 0, function* () {
           return yield this.api.v1.uploadMedia(media);
@@ -25880,20 +25873,27 @@ var require_Tweet = __commonJS({
       }
       send(media) {
         return __awaiter2(this, void 0, void 0, function* () {
-          const options = media ? this.makeOptions(media) : void 0;
+          const options = media && media.length > 0 ? makeOptions(media) : void 0;
           const tweet = yield this.api.v2.tweet(this.status, options);
           return tweet.data.id;
         });
       }
       replyTo(replyToId, media) {
         return __awaiter2(this, void 0, void 0, function* () {
-          const options = media ? this.makeOptions(media) : void 0;
+          const options = media && media.length > 0 ? makeOptions(media) : void 0;
           const tweet = yield this.api.v2.reply(this.status, replyToId, options);
           return tweet.data.id;
         });
       }
     };
     exports2.Tweet = Tweet;
+    function makeOptions(media) {
+      return {
+        media: {
+          media_ids: media
+        }
+      };
+    }
   }
 });
 
@@ -26001,8 +26001,8 @@ function run() {
         return [];
       });
       const uploads = media && media !== "" ? yield uploadMedia(media) : void 0;
-      if (uploads) {
-        core.info(`\u{1F426} sending tweet with media ${uploads}`);
+      if (uploads && uploads.length > 0) {
+        core.info(`\u{1F426} sending tweet with media [${uploads}] from [${media}]`);
       }
       if (replyTo) {
         core.info(`\u{1F426} replying to ${replyTo}`);
