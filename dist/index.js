@@ -26000,7 +26000,6 @@ function run() {
         }
         return [];
       });
-      console.log(`[${media === ""}]`);
       const uploads = media && media !== "" ? yield uploadMedia(media) : void 0;
       if (uploads) {
         core.info(`\u{1F426} sending tweet with media ${uploads}`);
