@@ -1,7 +1,7 @@
 import * as core from '@actions/core'
 import {Maybe} from './Maybe'
 import {TwitterApi} from 'twitter-api-v2'
-import {MediaId, StatusId, Tweet} from './Tweet'
+import {Media, StatusId, Tweet} from './Tweet'
 import * as fs from 'fs'
 
 function validateInput(name: string): void {
@@ -36,20 +36,36 @@ async function run(): Promise<void> {
 
     const tweet = new Tweet(twitter, status)
 
-    const uploadMedia: (media: string) => Promise<MediaId[]> = async (
+    const uploadMedia: (media: string) => Promise<Media | undefined> = async (
       media: string
     ) => {
       if (fs.existsSync(media)) {
         const files = await fs.promises.readdir(media)
-        return await Promise.all(
+
+        const uploads = await Promise.all(
           files.map(file => {
             const path = `${media}/${file}`
             core.debug(`🐦 uploading media ${path}`)
             return tweet.upload(path)
           })
         )
+
+        if (uploads.length >= 4) {
+          const [a, b, c, d, ...tails] = uploads
+          return [a, b, c, d]
+        } else if (uploads.length == 3) {
+          const [a, b, c] = uploads
+          return [a, b, c]
+        } else if (uploads.length == 2) {
+          const [a, b] = uploads
+          return [a, b]
+        } else if (uploads.length == 1) {
+          const [a] = uploads
+          return [a]
+        }
+        return undefined
       }
-      return []
+      return undefined
     }
 
     const uploads = media && media !== '' ? await uploadMedia(media) : undefined

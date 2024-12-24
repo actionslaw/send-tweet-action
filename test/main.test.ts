@@ -7,7 +7,7 @@ function validateInput(name: string): void {
   if (!core.getInput(name)) throw new Error(`${name} is a required input`)
 }
 
-async function test(): Promise<void> {
+async function testRun(): Promise<void> {
   validateInput('status')
   validateInput('consumer-key')
   validateInput('consumer-secret')
@@ -39,4 +39,6 @@ async function test(): Promise<void> {
   }
 }
 
-test()
+test('Test send tweet action', () => {
+  testRun()
+})
