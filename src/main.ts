@@ -3,6 +3,7 @@ import {Maybe} from './Maybe'
 import {TwitterApi} from 'twitter-api-v2'
 import {Media, StatusId, Tweet} from './Tweet'
 import * as fs from 'fs'
+import mime from 'mime'
 
 function validateInput(name: string): void {
   if (!core.getInput(name)) throw new Error(`${name} is a required input`)
@@ -43,11 +44,16 @@ async function run(): Promise<void> {
         const files = await fs.promises.readdir(media)
 
         const uploads = await Promise.all(
-          files.map(file => {
-            const path = `${media}/${file}`
-            core.debug(`🐦 uploading media ${path}`)
-            return tweet.upload(path)
-          })
+          files
+            .map(file => `${media}/${file}`)
+            .filter(path => {
+              const mimeType = mime.getType(path)
+              return mimeType?.startsWith('image/')
+            })
+            .map(path => {
+              core.debug(`🐦 uploading media [${path}]`)
+              return tweet.upload(path)
+            })
         )
 
         if (uploads.length >= 4) {
@@ -86,6 +92,7 @@ async function run(): Promise<void> {
     }
   } catch (error) {
     if (error instanceof Error) {
+      console.log(error)
       core.error(error)
       core.setFailed(error.message)
     }
